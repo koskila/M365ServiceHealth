@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.33402.96
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ServiceHealthReader", "ServiceHealthReader\ServiceHealthReader.csproj", "{E438B48C-A3F0-42EA-A30F-60C61FACB8FD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ServiceHealthReader.Web", "ServiceHealthReader.Web\ServiceHealthReader.Web.csproj", "{E438B48C-A3F0-42EA-A30F-60C61FACB8FD}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ServiceHealthReader.Data", "ServiceHealthReader.Data\ServiceHealthReader.Data.csproj", "{91544B6E-05BF-49AE-B6B4-34EB1AA71E1A}"
 EndProject
