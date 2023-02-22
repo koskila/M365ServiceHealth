@@ -1,6 +1,8 @@
 ﻿using Azure.Identity;
 using Microsoft.Graph;
+using ServiceHealthReader.Data.Models;
 using ServiceHealthReader.Models;
+using System.Text.Json;
 
 namespace ServiceHealthReader.Services
 {
@@ -8,7 +10,7 @@ namespace ServiceHealthReader.Services
     {
         private GraphServiceClient _client;
 
-        public GraphClient(IConfiguration configuration)
+        public GraphClient(IConfiguration configuration, IServiceConfiguration sc)
         {
             // The client credentials flow requires that you request the
             // /.default scope, and preconfigure your permissions on the
@@ -19,11 +21,9 @@ namespace ServiceHealthReader.Services
             // Multi-tenant apps can use "common",
             // single-tenant apps must use the tenant ID from the Azure portal
             //var tenantId = "common";
-            var tenantId = configuration["auth:tenantId"];
-
-            // Values from app registration, get clientid and clientsecret from appsettings.json
-            var clientId = configuration["auth:clientId"];
-            var clientSecret = configuration["auth:clientSecret"];
+            var tenantId = sc.TenantId;
+            var clientId = sc.ClientId;
+            var clientSecret = sc.ClientSecret;
 
             // using Azure.Identity;
             var options = new TokenCredentialOptions
@@ -32,8 +32,7 @@ namespace ServiceHealthReader.Services
             };
 
             // https://learn.microsoft.com/dotnet/api/azure.identity.clientsecretcredential
-            var clientSecretCredential = new ClientSecretCredential(
-                tenantId, clientId, clientSecret, options);
+            var clientSecretCredential = new ClientSecretCredential(tenantId, clientId, clientSecret, options);
 
             // create a new httpclient using clientsecretcredential abd scopes
             // https://docs.microsoft.com/en-us/graph/api/resources/servicehealth?view=graph-rest-1.0
@@ -41,29 +40,31 @@ namespace ServiceHealthReader.Services
             _client = new GraphServiceClient(clientSecretCredential, scopes);
         }
 
-        public IEnumerable<ServiceHealthIssue> GetServiceHealthIssueRootObject()
+        public IEnumerable<ServiceHealthIssue> GetIssues()
         {
-            var result = _client.Admin.ServiceAnnouncement.Issues.Request().GetAsync().Result;
+            var result = _client.Admin.ServiceAnnouncement.Issues.Request()
+                //.Top(5)
+                //.Filter("(from/emailAddress/address) eq 'someone@someplace.com'")
+                .OrderBy("lastModifiedDateTime desc")
+                .GetAsync().Result;
 
-            var list = result.ToList();
+            var list = result?.ToList();
 
-            
-            var nextPAge = result.NextPageRequest.GetAsync().Result;
-            while (nextPAge != null)
+            while (result?.NextPageRequest != null)
             {
-                list.AddRange(nextPAge.ToList());
-                nextPAge = nextPAge.NextPageRequest?.GetAsync().Result;
+                result = result.NextPageRequest?.GetAsync().Result;
+                list.AddRange(result.ToList());
             }
 
             return list;
         }
 
-        public async Task<string> GetDiagnosticInformation()
+        public async Task<DiagnosticResponse> GetDiagnosticInformation()
         {
             var response = await _client.Admin.ServiceAnnouncement.HealthOverviews.Request().GetResponseAsync();
             var diagnostics = response.HttpHeaders.GetValues("x-ms-ags-diagnostic");
 
-            return diagnostics.ToString();
+            return JsonSerializer.Deserialize<DiagnosticResponse>(diagnostics.First());
         }
     }
 }

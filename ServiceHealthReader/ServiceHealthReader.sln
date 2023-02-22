@@ -5,7 +5,9 @@ VisualStudioVersion = 17.5.33402.96
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ServiceHealthReader", "ServiceHealthReader\ServiceHealthReader.csproj", "{E438B48C-A3F0-42EA-A30F-60C61FACB8FD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceHealthReader.Data", "ServiceHealthReader.Data\ServiceHealthReader.Data.csproj", "{91544B6E-05BF-49AE-B6B4-34EB1AA71E1A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ServiceHealthReader.Data", "ServiceHealthReader.Data\ServiceHealthReader.Data.csproj", "{91544B6E-05BF-49AE-B6B4-34EB1AA71E1A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceHealthReader.Scheduler", "ServiceHealthReader.Scheduler\ServiceHealthReader.Scheduler.csproj", "{38EE256F-E39B-4142-BC89-F3B776A92F0F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{91544B6E-05BF-49AE-B6B4-34EB1AA71E1A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{91544B6E-05BF-49AE-B6B4-34EB1AA71E1A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{91544B6E-05BF-49AE-B6B4-34EB1AA71E1A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{38EE256F-E39B-4142-BC89-F3B776A92F0F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{38EE256F-E39B-4142-BC89-F3B776A92F0F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{38EE256F-E39B-4142-BC89-F3B776A92F0F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{38EE256F-E39B-4142-BC89-F3B776A92F0F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

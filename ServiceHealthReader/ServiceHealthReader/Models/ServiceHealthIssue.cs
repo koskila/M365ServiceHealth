@@ -1,5 +1,6 @@
 ﻿namespace ServiceHealthReader.Models
 {
+    [Obsolete]
     public class ServiceHealthIssueRootObject
     {
         public string odatacontext { get; set; }
@@ -7,6 +8,7 @@
         public Value[] value { get; set; }
     }
 
+    [Obsolete]
     public class Value
     {
         public DateTime startDateTime { get; set; }
@@ -26,12 +28,14 @@
         public Post[] posts { get; set; }
     }
 
+    [Obsolete]
     public class Detail
     {
         public string name { get; set; }
         public string value { get; set; }
     }
 
+    [Obsolete]
     public class Post
     {
         public DateTime createdDateTime { get; set; }
@@ -39,6 +43,7 @@
         public Description description { get; set; }
     }
 
+    [Obsolete]
     public class Description
     {
         public string contentType { get; set; }

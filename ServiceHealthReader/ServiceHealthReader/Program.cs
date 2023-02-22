@@ -1,4 +1,6 @@
 using System.Net.Http.Headers;
+using ServiceHealthReader.Data;
+using ServiceHealthReader.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,7 +11,10 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddScoped<IServiceConfiguration, ServiceConfiguration>();
+builder.Services.AddScoped<IDbService, DbService>();
 
+builder.Services.AddDbContext<ApplicationDbContext>();
 
 var app = builder.Build();
 
@@ -21,11 +26,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 app.UseAuthorization();
 
 app.MapControllers();
-
-
 
 app.Run();
