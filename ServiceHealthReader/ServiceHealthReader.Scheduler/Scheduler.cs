@@ -10,7 +10,7 @@ using Newtonsoft.Json;
 
 namespace ServiceHealthReader.Scheduler
 {
-    public static class Function1
+    public static class Scheduler
     {
         [FunctionName("Scheduler")]
         public static async Task Run(
