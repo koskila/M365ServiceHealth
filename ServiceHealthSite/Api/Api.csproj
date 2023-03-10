@@ -19,6 +19,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\ServiceHealthReader\ServiceHealthReader.Data\ServiceHealthReader.Data.csproj" />
     <ProjectReference Include="..\Shared\Shared.csproj" />
   </ItemGroup>
 </Project>
