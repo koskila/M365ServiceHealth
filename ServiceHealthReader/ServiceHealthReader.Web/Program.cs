@@ -4,6 +4,9 @@ using ServiceHealthReader.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+//builder.Configuration.AddJsonFile("appsettings.json", false);
+builder.Configuration.AddJsonFile("appsettings.local.json", true);
+
 // Add services to the container.
 
 builder.Services.AddControllers();
