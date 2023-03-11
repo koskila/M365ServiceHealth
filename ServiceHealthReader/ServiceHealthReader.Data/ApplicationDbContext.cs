@@ -9,10 +9,9 @@ namespace ServiceHealthReader.Data
 {
     public class ApplicationDbContext : DbContext
     {
-        //public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
-        //    : base(options)
-        //{
-        //}
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+            : base(options) {
+        }
 
         public ApplicationDbContext()
         {
@@ -21,7 +20,8 @@ namespace ServiceHealthReader.Data
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=Test2");
+            //optionsBuilder.UseSqlServer(@"");
+            base.OnConfiguring(optionsBuilder);
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

@@ -16,10 +16,9 @@ else
     <table class="table">
         <thead>
             <tr>
-                <th>Date</th>
-                <th>Temp. (C)</th>
-                <th>Temp. (F)</th>
-                <th>Summary</th>
+                <th>ID</th>
+                <th>Tenant</th>
+                <th>Issue</th>
             </tr>
         </thead>
         <tbody>
@@ -27,8 +26,8 @@ else
             {
                 <tr>
                     <td>@forecast.Id</td>
-                    <td>@forecast.Tenant</td>
-                    <td>@forecast.ServiceHealthIssue</td>
+                    <td>@forecast.Tenant?.TenantId</td>
+                    <td>>@forecast.ServiceHealthIssue?.Details</td>
                 </tr>
             }
         </tbody>

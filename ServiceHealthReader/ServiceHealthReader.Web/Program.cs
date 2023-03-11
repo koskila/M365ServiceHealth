@@ -1,4 +1,5 @@
 using System.Net.Http.Headers;
+using Microsoft.EntityFrameworkCore;
 using ServiceHealthReader.Data;
 using ServiceHealthReader.Services;
 
@@ -17,7 +18,9 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IServiceConfiguration, ServiceConfiguration>();
 builder.Services.AddScoped<IDbService, DbService>();
 
-builder.Services.AddDbContext<ApplicationDbContext>();
+// instantiate a new applicationdbcontext with a connectionstring from appsettings
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 var app = builder.Build();
 
