@@ -4,6 +4,7 @@
 @using ServiceHealthReader.Data.Models;
 @using System.Text.Json;
 @using System.Text.Json.Serialization;
+
 @inject HttpClient Http
 
 <h1>Issues</h1>
@@ -28,7 +29,7 @@ else
             @foreach (var issue in issues)
             {
                 <tr>
-                    <td><a href="/issue?id=@issue.Id">@issue.Id</a></td>
+                    <td><a href="/issue/@issue.Id">@issue.Id</a></td>
                     <td>@issue.Tenant?.ServerInfo?.FirstOrDefault()?.DataCenter</td>
                     <td>@issue.ServiceHealthIssue?.ImpactDescription</td>
                 </tr>

@@ -1,20 +1,63 @@
-﻿@page "/issue"
+﻿@page "/issue/{Id:int?}"
+
+@using ServiceHealthReader.Data.Models
+@using ServiceHealthReader.Data;
+
+@inject HttpClient Http
 
 <PageTitle>Issue details</PageTitle>
 
-<h1>Counter</h1>
+<h1>Issue</h1>
 
-<p role="status">Current count: @Id</p>
+<p role="status">Issue ID: @Id</p>
 
 <button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
 
-@code {
+@if (showDetails)
+{
+    <h2>History</h2>
 
+    <span>Start time:</span>
+    @issue?.ServiceHealthIssue?.StartDateTime
+
+    @if (issue != null && issue.ServiceHealthIssue != null && issue.ServiceHealthIssue.Posts != null) 
+    {
+        <table>
+            @foreach (var x in issue?.ServiceHealthIssue?.Posts)
+            {
+                <tr>
+                    <td>@x.CreatedDateTime</td>
+                    <td>@x.Description</td>
+                </tr>
+            }
+        </table>
+    }
+}
+
+
+
+
+@code {
     [Parameter]
-    public string Id { get; set; }
+    public int? Id { get; set; } = null;
+
+    private bool showDetails = false;
+
+    private Issue issue { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        issue = await Http.GetFromJsonAsync<Issue>($"/api/Issue/{Id}");
+
+        if (issue == null) throw new ArgumentNullException("Can't have null here!");
+
+        showDetails = true;
+
+        await base.OnParametersSetAsync();
+    }
 
     private void IncrementCount()
     {
-        
+
     }
 }

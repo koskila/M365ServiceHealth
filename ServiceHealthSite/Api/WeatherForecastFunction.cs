@@ -49,5 +49,22 @@ namespace ApiIsolated {
             var json = System.Text.Json.JsonSerializer.Serialize(arr, options);
             return json;
         }
+
+        [Function("Issue")]
+        // get id parameter from the query string
+        public async Task<string> GetOneIssue([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "Issue/{id:int}")] HttpRequestData req, int id)
+        {
+            var issue = _applicationDbContext.Issues.Where(x => x.Id == id).Include(x => x.ServiceHealthIssue).First();
+                
+            // serialize issues to JSON using System.Text.Json
+            JsonSerializerOptions options = new()
+            {
+                ReferenceHandler = ReferenceHandler.Preserve,
+                WriteIndented = true,
+            };
+
+            var json = System.Text.Json.JsonSerializer.Serialize(issue, options);
+            return json;
+        }
     }
 }
