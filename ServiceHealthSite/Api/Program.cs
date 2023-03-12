@@ -17,7 +17,7 @@ namespace ApiIsolated
                 .AddJsonFile("local.settings.json", optional: true, reloadOnChange: true)
                 .AddEnvironmentVariables().Build();
 
-            var cs = builder.GetSection("Values").GetValue<string>("DefaultConnection");
+            var cs = builder.GetValue<string>("DefaultConnection");
 
             var host = new HostBuilder()
                 .ConfigureFunctionsWorkerDefaults()
