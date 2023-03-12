@@ -1,0 +1,20 @@
+﻿@page "/issue"
+
+<PageTitle>Issue details</PageTitle>
+
+<h1>Counter</h1>
+
+<p role="status">Current count: @Id</p>
+
+<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+
+@code {
+
+    [Parameter]
+    public string Id { get; set; }
+
+    private void IncrementCount()
+    {
+        
+    }
+}
