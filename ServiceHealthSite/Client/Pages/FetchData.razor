@@ -1,6 +1,8 @@
 ﻿@page "/fetchdata"
 @using BlazorApp.Shared 
 @using ServiceHealthReader.Data.Models;
+@using System.Text.Json;
+@using System.Text.Json.Serialization;
 @inject HttpClient Http
 
 <h1>Issues</h1>
@@ -22,12 +24,12 @@ else
             </tr>
         </thead>
         <tbody>
-            @foreach (var forecast in issues)
+            @foreach (var issue in issues)
             {
                 <tr>
-                    <td>@forecast.Id</td>
-                    <td>@forecast.Tenant?.TenantId</td>
-                    <td>>@forecast.ServiceHealthIssue?.Details</td>
+                    <td>@issue.Id</td>
+                    <td>@issue.Tenant?.TenantId</td>
+                    <td>@issue.ServiceHealthIssue?.ImpactDescription</td>
                 </tr>
             }
         </tbody>
@@ -41,11 +43,19 @@ else
     {
         try
         {
-            issues = await Http.GetFromJsonAsync<Issue[]>("/api/Announcements") ?? new Issue[]{};
+            var str = await Http.GetStringAsync("/api/Announcements");
+
+            // parse str JSON into issues[] using System.Text.JSON
+            issues = JsonSerializer.Deserialize<Issue[]>(str, new JsonSerializerOptions()
+            {
+                ReferenceHandler = ReferenceHandler.Preserve,
+                
+            });
         }
         catch (Exception ex)
         {
             Console.WriteLine(ex.ToString());
+            Console.Write(ex.StackTrace);
         }
     }
 }
