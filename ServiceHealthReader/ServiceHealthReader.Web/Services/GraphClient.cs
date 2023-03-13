@@ -24,6 +24,18 @@ namespace ServiceHealthReader.Services
             var tenantId = sc.TenantId;
             var clientId = sc.ClientId;
             var clientSecret = sc.ClientSecret;
+            
+            if (tenantId == null) {
+                throw new ArgumentNullException(nameof(tenantId));
+            }
+            if (clientId == null)
+            {
+                throw new ArgumentNullException(nameof(clientId));
+            }
+            if (clientSecret == null)
+            {
+                throw new ArgumentNullException(nameof(clientSecret));
+            }
 
             // using Azure.Identity;
             var options = new TokenCredentialOptions
@@ -34,7 +46,7 @@ namespace ServiceHealthReader.Services
             // https://learn.microsoft.com/dotnet/api/azure.identity.clientsecretcredential
             var clientSecretCredential = new ClientSecretCredential(tenantId, clientId, clientSecret, options);
 
-            // create a new httpclient using clientsecretcredential abd scopes
+            // create a new httpclient using clientsecretcredential and scopes
             // https://docs.microsoft.com/en-us/graph/api/resources/servicehealth?view=graph-rest-1.0
 
             _client = new GraphServiceClient(clientSecretCredential, scopes);
