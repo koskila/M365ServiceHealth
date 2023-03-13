@@ -5,37 +5,93 @@
 
 @inject HttpClient Http
 
-<PageTitle>Issue details</PageTitle>
+<RadzenStack>
 
-<h1>Issue</h1>
+    <PageTitle>Issue details</PageTitle>
 
-<p role="status">Issue ID: @Id</p>
+    <RadzenText TextStyle="TextStyle.H1">@title</RadzenText>
 
-<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
-
-@if (showDetails)
-{
-    <h2>History</h2>
-
-    <span>Start time:</span>
-    @issue?.ServiceHealthIssue?.StartDateTime
-
-    @if (issue != null && issue.ServiceHealthIssue != null && issue.ServiceHealthIssue.Posts != null) 
-    {
-        <table>
-            @foreach (var x in issue?.ServiceHealthIssue?.Posts)
+    <RadzenCard Class="rz-my-12 rz-mx-auto" Style="max-width: 420px">
+        <RadzenStack Orientation="Orientation.Vertical" JustifyContent="JustifyContent.Start" Gap="1rem" Class="rz-p-4">
+            @if (showDetails)
             {
-                <tr>
-                    <td>@x.CreatedDateTime</td>
-                    <td>@x.Description</td>
-                </tr>
+                <RadzenText TextStyle="TextStyle.H3">
+                    <h2>Details</h2>
+                </RadzenText>
+                <RadzenText TextStyle="TextStyle.H6">
+                    <span>Start time:</span>
+                    @issue?.ServiceHealthIssue?.StartDateTime
+                </RadzenText>
+
+                <RadzenText>
+                    @issue?.ServiceHealthIssue?.ImpactDescription
+                </RadzenText>
+
+                <RadzenRow class="col-12">
+                    <RadzenText TextStyle="TextStyle.H3">History</RadzenText>
+                </RadzenRow>
+
+                <RadzenRow>
+                    @if (issue != null && issue.ServiceHealthIssue != null)
+                    {
+                        <RadzenRow class="col-12">
+                            @issue.ServiceHealthIssue.Classification?.ToString()
+                        </RadzenRow>
+                        <RadzenRow class="col-12">
+                            @if (issue.ServiceHealthIssue.Details != null)
+                            {
+                                <ul>
+                                    @foreach (var d in issue.ServiceHealthIssue.Details)
+                                    {
+                                        <RadzenRow RowGap="0">@d.Name: @d.Value</RadzenRow>
+                                    }
+                                </ul>
+                            }
+                        </RadzenRow>
+                        <RadzenRow class="col-12">
+                            @issue.ServiceHealthIssue.Feature
+                        </RadzenRow>
+                        <RadzenRow class="col-12">
+                            @issue.ServiceHealthIssue.FeatureGroup
+
+                        </RadzenRow>
+                        <RadzenRow class="col-12">
+                            @issue.ServiceHealthIssue.ImpactDescription
+
+                        </RadzenRow>
+                        <RadzenRow class="col-12">
+
+                            @if (issue.ServiceHealthIssue.Posts != null)
+                            {
+                                @foreach (var x in issue?.ServiceHealthIssue?.Posts)
+                                {
+                                    <RadzenRow RowGap="0">
+                                        <RadzenColumn>@x.CreatedDateTime</RadzenColumn>
+                                        <RadzenColumn>@x.Description</RadzenColumn>
+                                    </RadzenRow>
+                                }
+                            }
+                        </RadzenRow>
+                        <RadzenRow>
+                            @if (issue.ServiceHealthIssue.Details != null)
+                            {
+                                @foreach (var x in issue.ServiceHealthIssue.Details)
+                                {
+                                    <RadzenRow>
+                                        <RadzenColumn> @x.Name </RadzenColumn>
+                                        <RadzenColumn> @x.Value </RadzenColumn>
+                                    </RadzenRow>
+                                }
+                            }
+                        </RadzenRow>
+                    }
+                </RadzenRow>
             }
-        </table>
-    }
-}
 
-
-
+        </RadzenStack>
+        <button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+    </RadzenCard>
+</RadzenStack>
 
 @code {
     [Parameter]
@@ -43,13 +99,19 @@
 
     private bool showDetails = false;
 
+    private string title = "";
+
     private Issue issue { get; set; }
 
     protected override async Task OnParametersSetAsync()
     {
+        title = "Issue: " + Id;
+
         issue = await Http.GetFromJsonAsync<Issue>($"/api/Issue/{Id}");
 
         if (issue == null) throw new ArgumentNullException("Can't have null here!");
+
+        title = $"{issue.ServiceHealthIssue.Title} ({issue.ServiceHealthIssue.Id})";
 
         showDetails = true;
 

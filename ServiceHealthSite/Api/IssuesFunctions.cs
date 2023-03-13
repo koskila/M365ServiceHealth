@@ -28,16 +28,13 @@ namespace ApiIsolated {
         [Function("Announcements")]
         public async Task<string> GetAnnouncements([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req) 
         {
-            var issues = _applicationDbContext.Issues.Take(10).OrderByDescending(X => X.Id)
+            var issues = _applicationDbContext.Issues.OrderByDescending(X => X.Id)
                 .Include(x => x.ServiceHealthIssue)
-                    //.ThenInclude(x => x.ImpactDescription)
-                    //.ThenInclude(x => x.)
                 .Include(x => x.Tenant)
-                    //.ThenInclude(x => x.TenantId)
                     .ThenInclude(x => x.ServerInfo)
                 ;
 
-            var arr = issues.ToArray();
+            var arr = await issues.ToArrayAsync();
 
             // serialize issues to JSON using System.Text.Json
             JsonSerializerOptions options = new()

@@ -1,6 +1,7 @@
 ﻿@page "/fetchdata"
 
-@using BlazorApp.Shared 
+@using BlazorApp.Shared
+@using Radzen;
 @using ServiceHealthReader.Data.Models;
 @using System.Text.Json;
 @using System.Text.Json.Serialization;
@@ -17,25 +18,42 @@
 }
 else
 {
-    <table class="table">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Geo</th>
-                <th>Issue</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var issue in issues)
-            {
-                <tr>
-                    <td><a href="/issue/@issue.Id">@issue.Id</a></td>
-                    <td>@issue.Tenant?.ServerInfo?.FirstOrDefault()?.DataCenter</td>
-                    <td>@issue.ServiceHealthIssue?.ImpactDescription</td>
-                </tr>
-            }
-        </tbody>
-    </table>
+    <RadzenDataGrid AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false" FilterMode="FilterMode.Advanced" AllowSorting="true"
+                PageSize="50" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true"
+                Data="@issues" TItem="Issue" ColumnWidth="300px" LogicalFilterOperator="LogicalFilterOperator.Or">
+        <Columns>
+            <RadzenDataGridColumn TItem="Issue" Property="ServiceHealthIssue.Id" Filterable="false" Title="ID" Frozen="true" Width="25px" TextAlign="TextAlign.Center">
+                <Template Context="data">
+                    <a href="/issue/@data.Id">@data.ServiceHealthIssue?.Id</a>
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn TItem="Issue" Property="ServiceHealthIssue.StartDateTime" Filterable="false" Title="Start Date" Frozen="true" Width="50px" TextAlign="TextAlign.Center">
+                <Template Context="data">
+                    <a href="/issue/@data.Id">@data.ServiceHealthIssue?.StartDateTime</a>
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn TItem="Issue" Property="ServiceHealthIssue.EndDateTime" Filterable="false" Title="End Date" Frozen="true" Width="50px" TextAlign="TextAlign.Center">
+                <Template Context="data">
+                    @data.ServiceHealthIssue?.EndDateTime
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn TItem="Issue" Property="Id" Filterable="false" Title="Status" Frozen="true" Width="50px" TextAlign="TextAlign.Center">
+                <Template Context="data">
+                    @data.ServiceHealthIssue?.Status
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn TItem="Issue" Property="Tenant" Title="Geo" Frozen="true" Width="50px">
+                <Template Context="data">
+                    @data.Tenant?.ServerInfo?.First()?.DataCenter
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn TItem="Issue" Property="ServiceHealthIssue" Filterable="true" Title="Issue" Frozen="true" Width="105px" TextAlign="TextAlign.Center">
+                <Template Context="data">
+                    @data.ServiceHealthIssue?.ImpactDescription
+                </Template>
+            </RadzenDataGridColumn>
+        </Columns>
+    </RadzenDataGrid>
 }
 
 @code {
@@ -49,10 +67,9 @@ else
 
             // parse str JSON into issues[] using System.Text.JSON
             issues = JsonSerializer.Deserialize<Issue[]>(str, new JsonSerializerOptions()
-            {
-                ReferenceHandler = ReferenceHandler.Preserve,
-                
-            });
+                {
+                    ReferenceHandler = ReferenceHandler.Preserve,
+                });
         }
         catch (Exception ex)
         {
