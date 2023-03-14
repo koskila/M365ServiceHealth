@@ -22,47 +22,45 @@
                     Details
                 </RadzenText>
 
-                @if (issue?.TenantIssues != null)
-                {
-                    <RadzenText TextStyle="TextStyle.Overline">
-                        Geos
-                    </RadzenText>
-                    <RadzenText TextStyle="TextStyle.Body1">
-                        @{
-                            var geos = new List<string>();
-                            foreach (var tenant in issue?.TenantIssues?.Select(x => x.Tenant))
-                            {
-                                geos.Add(tenant.ServerInfo.OrderByDescending(x => x.Created).First()?.DataCenter);
+                <RadzenPanel>
+                    @if (issue?.TenantIssues != null)
+                    {
+                        <RadzenText TextStyle="TextStyle.Overline">
+                            Geos
+                        </RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body1">
+                            @{
+                                var geos = new List<string>();
+                                foreach (var tenant in issue?.TenantIssues?.Select(x => x.Tenant))
+                                {
+                                    geos.Add(tenant.ServerInfo.OrderByDescending(x => x.Created).First()?.DataCenter);
+                                }
+                                <BlazorApp.Client.Components.Geolist Geos=geos></BlazorApp.Client.Components.Geolist>
                             }
-                            <BlazorApp.Client.Components.Geolist Geos=geos></BlazorApp.Client.Components.Geolist>
-                        }
-                    </RadzenText>
+                        </RadzenText>
 
-                    <RadzenText TextStyle="TextStyle.Overline">
-                        Rings
-                    </RadzenText>
-                    <RadzenText TextStyle="TextStyle.Body1">
-                        @*@issue?.TenantIssues?.ServerInfo?.First().Ring*@
-                    </RadzenText>
-
-
-
-                    @*                    <RadzenText TextStyle="TextStyle.Overline">
-            Geos
-            </RadzenText>
-            <RadzenText TextStyle="TextStyle.Body1">
-            @issue?.Tenant?.ServerInfo?.First().
-            </RadzenText>*@
-
-                }
+                        <RadzenText TextStyle="TextStyle.Overline">
+                            Rings
+                        </RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body1">
+                            <ul>
+                            @foreach (var info in issue?.TenantIssues?.Select(x => x.Tenant).Select(x => x.ServerInfo).Distinct())
+                            {
+                                    foreach (var i in info)
+                                    {
+                                        <li>@i.Ring</li>
+                                    }
+                                }
+                            </ul>
+                        </RadzenText>
+                    }
+                </RadzenPanel>
 
                 @if (issue != null && issue.ServiceHealthIssue != null)
                 {
                     <RadzenText TextStyle="TextStyle.Overline">
                         Start time
                     </RadzenText>
-
-
                     <RadzenText TextStyle="TextStyle.Body1">
                         @issue?.ServiceHealthIssue?.StartDateTime
                     </RadzenText>
@@ -81,14 +79,10 @@
                         @issue?.ServiceHealthIssue?.ImpactDescription
                     </RadzenText>
 
-                    <RadzenRow>
-                        <RadzenText TextStyle="TextStyle.H3">History</RadzenText>
-                    </RadzenRow>
-
-                    <RadzenRow class="col-12">
+                    <RadzenText class="col-12">
                         @issue.ServiceHealthIssue.Classification?.ToString()
-                    </RadzenRow>
-                    <RadzenRow class="col-12">
+                    </RadzenText>
+                    <RadzenText class="col-12">
                         @if (issue.ServiceHealthIssue.Details != null)
                         {
                             <ul>
@@ -99,38 +93,42 @@
                             </ul>
                         }
 
-                    </RadzenRow>
-                    <RadzenRow class="col-12">
-                        @issue.ServiceHealthIssue.Feature
-                    </RadzenRow>
-                    <RadzenRow class="col-12">
-                        @issue.ServiceHealthIssue.FeatureGroup
+                    </RadzenText>
 
-                    </RadzenRow>
-                    <RadzenRow class="col-12">
+                    <RadzenText TextStyle="TextStyle.Overline">
+                        Feature
+                    </RadzenText>
+                    <RadzenText class="col-12">
+                        @issue.ServiceHealthIssue.Feature (@issue.ServiceHealthIssue.FeatureGroup)
+                    </RadzenText>
+
+                    <RadzenText TextStyle="TextStyle.Overline">
+                        Origin
+                    </RadzenText>
+                    <RadzenText class="col-12">
                         @issue.ServiceHealthIssue.Origin
+                    </RadzenText>
 
-                    </RadzenRow>
-                    <RadzenRow class="col-12">
 
-                        <RadzenDataGrid Data="@issue.ServiceHealthIssue.Posts" TItem="ServiceHealthIssuePost">
+                    <RadzenText>
+                        <RadzenText TextStyle="TextStyle.H3">History</RadzenText>
+                    </RadzenText>
+
+                    <RadzenRow>
+                        <span>Number of posts: @issue.ServiceHealthIssue?.Posts?.Count()</span>
+
+                        <RadzenDataGrid Data="@issue.ServiceHealthIssue.Posts.OrderByDescending(x => x.CreatedDateTime)" TItem="ServiceHealthIssuePost">
                             <Columns>
                                 <RadzenDataGridColumn TItem="ServiceHealthIssuePost" Property="CreatedDateTime" Title="Post date" />
-                                <RadzenDataGridColumn TItem="ServiceHealthIssuePost" Property="Description" Title="Post content" />
+                                <RadzenDataGridColumn TItem="ServiceHealthIssuePost" Property="Description" Title="Post content">
+                                    <Template Context="data">
+                                        @data.Description?.Content
+                                    </Template>
+                                </RadzenDataGridColumn>
                                 <RadzenDataGridColumn TItem="ServiceHealthIssuePost" Property="PostType" Title="Post type" />
                             </Columns>
                         </RadzenDataGrid>
 
-                        @if (issue.ServiceHealthIssue.Posts != null)
-                        {
-                            @foreach (var x in issue?.ServiceHealthIssue?.Posts)
-                            {
-                                <RadzenRow RowGap="0">
-                                    <RadzenColumn>@x.CreatedDateTime</RadzenColumn>
-                                    <RadzenColumn>@x.Description</RadzenColumn>
-                                </RadzenRow>
-                            }
-                        }
                     </RadzenRow>
                     <RadzenRow>
                         @if (issue.ServiceHealthIssue.Details != null)

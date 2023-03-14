@@ -41,7 +41,7 @@ namespace ServiceHealthReader.Data
             modelBuilder
                 .Entity<Microsoft.Graph.ServiceHealthIssue>()
                 //.Ignore(x => x.AdditionalData)
-                .Ignore(x => x.Posts)
+                //.Ignore(x => x.Posts)
                 //.Ignore(x => x.Service)
                 //.Ignore(x => x.FeatureGroup)
                 .Ignore(x => x.Details)
@@ -52,11 +52,38 @@ namespace ServiceHealthReader.Data
                 .Entity<Microsoft.Graph.ServiceHealthIssue>()
                 .Property(x => x.AdditionalData)
                 .HasColumnName("AdditionalData")
-                .HasColumnType("TEXT") // sqlite BLOB type
+                .HasColumnType("TEXT") 
                 .HasConversion(
                     v => JsonSerializer.Serialize(v, options),
                     s => JsonSerializer.Deserialize<IDictionary<string, object>>(s, options)!,
                     ValueComparer.CreateDefault(typeof(IDictionary<string, object>), true)
+                );
+
+            modelBuilder
+                .Entity<Microsoft.Graph.ServiceHealthIssuePost>()
+                .Property(x => x.AdditionalData)
+                .HasColumnName("AdditionalData")
+                .HasColumnType("TEXT") 
+                .HasConversion(
+                    v => JsonSerializer.Serialize(v, options),
+                    s => JsonSerializer.Deserialize<IDictionary<string, object>>(s, options)!,
+                    ValueComparer.CreateDefault(typeof(IDictionary<string, object>), true)
+                );
+
+            modelBuilder
+                .Entity<Microsoft.Graph.ServiceHealthIssuePost>()
+                .HasKey(x => x.CreatedDateTime); // pretty bad 
+
+
+            modelBuilder
+                .Entity<Microsoft.Graph.ServiceHealthIssuePost>()
+                .Property(x => x.Description)
+                .HasColumnName("Description")
+                .HasColumnType("TEXT")
+                .HasConversion(
+                    v => JsonSerializer.Serialize(v, options),
+                    s => JsonSerializer.Deserialize<Microsoft.Graph.ItemBody>(s, options)!,
+                    ValueComparer.CreateDefault(typeof(Microsoft.Graph.ItemBody), true)
                 );
         }
 

@@ -19,27 +19,33 @@
 else
 {
     <RadzenDataGrid AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false" FilterMode="FilterMode.Advanced" AllowSorting="true"
-                PageSize="50" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true"
-                Data="@issues" TItem="Issue" ColumnWidth="300px" LogicalFilterOperator="LogicalFilterOperator.Or">
+                PageSize="50" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Center" ShowPagingSummary="true"
+                Data="@issues.OrderByDescending(x => x.Id)" TItem="Issue" ColumnWidth="300px"
+                LogicalFilterOperator="LogicalFilterOperator.Or">
         <Columns>
-            <RadzenDataGridColumn TItem="Issue" Property="ServiceHealthIssue.Id" Filterable="false" Title="ID" Frozen="true" Width="25px" TextAlign="TextAlign.Center">
+            <RadzenDataGridColumn TItem="Issue" Property="ServiceHealthIssue.Id" Filterable="false" Title="ID" Frozen="true" Width="50px" TextAlign="TextAlign.Center">
                 <Template Context="data">
                     <a href="/issue/@data.Id">@data.ServiceHealthIssue?.Id</a>
                 </Template>
             </RadzenDataGridColumn>
-            <RadzenDataGridColumn TItem="Issue" Property="ServiceHealthIssue.StartDateTime" Filterable="true" Title="Start Date" Frozen="true" Width="50px" TextAlign="TextAlign.Center">
+            <RadzenDataGridColumn TItem="Issue" Property="ServiceHealthIssue.StartDateTime" Filterable="true" Title="Start Date" Frozen="true" Width="75px" TextAlign="TextAlign.Center">
                 <Template Context="data">
                     <a href="/issue/@data.Id">@data.ServiceHealthIssue?.StartDateTime</a>
                 </Template>
             </RadzenDataGridColumn>
-            <RadzenDataGridColumn TItem="Issue" Property="ServiceHealthIssue.EndDateTime" Filterable="true" Title="End Date" Frozen="true" Width="50px" TextAlign="TextAlign.Center">
+            <RadzenDataGridColumn TItem="Issue" Property="ServiceHealthIssue.EndDateTime" Filterable="true" Title="End Date" Frozen="true" Width="75px" TextAlign="TextAlign.Center">
                 <Template Context="data">
                     @data.ServiceHealthIssue?.EndDateTime
                 </Template>
             </RadzenDataGridColumn>
-            <RadzenDataGridColumn TItem="Issue" Property="Id" Filterable="true" Title="Status" Frozen="true" Width="50px" TextAlign="TextAlign.JustifyAll">
+            <RadzenDataGridColumn TItem="Issue" Property="Status" Filterable="true" Title="Status" Frozen="true" Width="50px" TextAlign="TextAlign.JustifyAll">
                 <Template Context="data">
                     @data.ServiceHealthIssue?.Status
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn TItem="Issue" Filterable="false" Title="Number of posts" Frozen="true" Width="50px" TextAlign="TextAlign.Center" Sortable="false">
+                <Template Context="data">
+                    @data.ServiceHealthIssue?.Posts?.Count()
                 </Template>
             </RadzenDataGridColumn>
             <RadzenDataGridColumn TItem="Issue" Property="ServiceHealthIssue" Filterable="true" Title="Issue" Frozen="true" TextAlign="TextAlign.Left">
