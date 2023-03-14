@@ -20,7 +20,7 @@
 
     private async Task AddTenant()
     {
-        string redirectUri = $"{nvm.BaseUri}tenant/{tenantId}";
+        string redirectUri = $"{nvm.BaseUri}tenant/";
         var url = $"https://login.microsoftonline.com/{tenantId}/oauth2/authorize?client_id={clientId}&response_type=code&redirect_uri={redirectUri}&response_mode=query&scope=openid%20offline_access%20https%3A%2F%2Fgraph.microsoft.com%2F.default";
         await jsRuntime.InvokeAsync<object>("open", url, "_blank");
         
