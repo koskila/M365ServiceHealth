@@ -74,7 +74,7 @@ else
 }
 
 @code {
-    private Issue[] issues = new Issue[] { };
+    private IEnumerable<Issue> issues = new List<Issue>();
 
     protected override async Task OnInitializedAsync()
     {
@@ -83,10 +83,12 @@ else
             var str = await Http.GetStringAsync("/api/Announcements");
 
             // parse str JSON into issues[] using System.Text.JSON
-            issues = JsonSerializer.Deserialize<Issue[]>(str, new JsonSerializerOptions()
+            issues = JsonSerializer.Deserialize<List<Issue>>(str, new JsonSerializerOptions()
                 {
                     ReferenceHandler = ReferenceHandler.Preserve,
-                });
+                })
+                .OrderByDescending(x => x.ServiceHealthIssue.StartDateTime)
+                ;
         }
         catch (Exception ex)
         {

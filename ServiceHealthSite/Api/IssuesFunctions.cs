@@ -30,16 +30,17 @@ namespace ApiIsolated
         [Function("Announcements")]
         public async Task<string> GetAnnouncements([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req)
         {
-            var issues = _applicationDbContext.Issues.OrderByDescending(X => X.Id)
+            var issues = _applicationDbContext.Issues
                 .Include(x => x.ServiceHealthIssue)
                     .ThenInclude(x => x.Posts)
                 .Include(x => x.TenantIssues)
                     //.ThenInclude(x => x.TenantId)
                     .ThenInclude(x => x.Tenant)
                     .ThenInclude(x => x.ServerInfo)
+                .AsSplitQuery()
             ;
 
-            var arr = await issues.ToArrayAsync();
+            var arr = await issues.ToListAsync();
 
             // serialize issues to JSON using System.Text.Json
             JsonSerializerOptions options = new()
@@ -56,15 +57,16 @@ namespace ApiIsolated
         // get id parameter from the query string
         public async Task<string> GetOneIssue([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "Issue/{id:int}")] HttpRequestData req, int id)
         {
-            var issue = _applicationDbContext.Issues.Where(x => x.Id == id)
+            var issue = await _applicationDbContext.Issues.Where(x => x.Id == id)
                 .Include(x => x.ServiceHealthIssue)
                     .ThenInclude(x => x.Posts)
                 .Include(x => x.TenantIssues)
                     .ThenInclude(x => x.Tenant)
                     .ThenInclude(x => x.ServerInfo)
-                .First();
+                .AsSplitQuery()
+                .FirstAsync();
 
-            issue.TenantIssues = null; // we don't want these
+            //issue.TenantIssues = null; // we don't want these
 
             // serialize issues to JSON using System.Text.Json
             JsonSerializerOptions options = new()

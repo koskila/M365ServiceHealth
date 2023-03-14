@@ -21,7 +21,7 @@ namespace ServiceHealthReader.Data
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=Test2");
+            //optionsBuilder.UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=Test2");
             base.OnConfiguring(optionsBuilder);
         }
 
