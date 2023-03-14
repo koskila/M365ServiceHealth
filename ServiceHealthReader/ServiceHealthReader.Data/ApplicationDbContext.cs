@@ -10,7 +10,8 @@ namespace ServiceHealthReader.Data
     public class ApplicationDbContext : DbContext
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
-            : base(options) {
+            : base(options)
+        {
         }
 
         public ApplicationDbContext()
@@ -20,13 +21,22 @@ namespace ServiceHealthReader.Data
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            //optionsBuilder.UseSqlServer(@"");
+            optionsBuilder.UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=Test2");
             base.OnConfiguring(optionsBuilder);
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             var options = new JsonSerializerOptions(JsonSerializerDefaults.General);
+
+            modelBuilder
+                .Entity<TenantIssue>().HasKey(x => new { x.IssueId, x.TenantId });
+
+            modelBuilder.Entity<TenantIssue>().HasOne(x => x.Tenant).WithMany(x => x.TenantIssues).HasForeignKey(x => x.TenantId);
+            modelBuilder.Entity<TenantIssue>().HasOne(x => x.Issue).WithMany(x => x.TenantIssues).HasForeignKey(x => x.IssueId);
+
+            modelBuilder.Entity<TenantIssue>().Property(x => x.FirstSeen).HasDefaultValueSql("GETDATE()");
+            modelBuilder.Entity<Serverinfo>().Property(x => x.Created).HasDefaultValueSql("GETDATE()");
 
             modelBuilder
                 .Entity<Microsoft.Graph.ServiceHealthIssue>()

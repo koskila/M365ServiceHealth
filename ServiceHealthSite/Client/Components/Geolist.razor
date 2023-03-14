@@ -1,0 +1,37 @@
+﻿<RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Start" Gap="0rem" Wrap="FlexWrap.Wrap" AlignItems="AlignItems.Center" Class="rz-p-4">
+    @foreach (var item in AllGeos)
+    {
+        <RadzenText TextAlign="TextAlign.Center" TagName="TagName.Div">
+            @if (Geos.Contains(item))
+            {
+                <i class="oi oi-globe"></i>
+
+            }
+            else
+            {
+                <i class="oi oi-globe" style="opacity: 0.5;"></i>
+            }
+            <br />
+            <RadzenText TextStyle="TextStyle.Caption" TagName="TagName.Span" TextAlign="TextAlign.Center">@item
+            @if (@Geos.Count(x => x.Equals(item)) > 0)
+            {
+                <span>(@Geos.Count(x => x.Equals(item)))</span>
+            }
+            </RadzenText>
+        </RadzenText>
+    }
+</RadzenStack>
+
+@code {
+    [Parameter]
+    public List<string> Geos { get; set; } = null;
+
+    public List<string> AllGeos { get; set; } = new List<string>()
+    {
+        "West Europe",
+        "North Europe",
+        "East US",
+        "West US",
+        "Global"
+    };
+}

@@ -30,8 +30,11 @@ namespace ApiIsolated {
         {
             var issues = _applicationDbContext.Issues.OrderByDescending(X => X.Id)
                 .Include(x => x.ServiceHealthIssue)
-                .Include(x => x.Tenant)
-                    .ThenInclude(x => x.ServerInfo)
+                //.ThenInclude(x => x.ImpactDescription)
+                //.ThenInclude(x => x.)
+                .Include(x => x.TenantIssues)
+                    //.ThenInclude(x => x.TenantId)
+                    .ThenInclude(x => x.Tenant).ThenInclude(x => x.ServerInfo);
                 ;
 
             var arr = await issues.ToArrayAsync();
@@ -51,7 +54,13 @@ namespace ApiIsolated {
         // get id parameter from the query string
         public async Task<string> GetOneIssue([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "Issue/{id:int}")] HttpRequestData req, int id)
         {
-            var issue = _applicationDbContext.Issues.Where(x => x.Id == id).Include(x => x.ServiceHealthIssue).First();
+            var issue = _applicationDbContext.Issues.Where(x => x.Id == id)
+                .Include(x => x.ServiceHealthIssue)
+                .Include(x => x.TenantIssues).ThenInclude(x => x.Tenant).ThenInclude(x => x.ServerInfo)
+                .IgnoreAutoIncludes()
+                .First();
+
+            issue.TenantIssues = null; // we don't want these
                 
             // serialize issues to JSON using System.Text.Json
             JsonSerializerOptions options = new()

@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Routing;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Graph;
+using ServiceHealthReader.Data;
 using ServiceHealthReader.Data.Models;
 using ServiceHealthReader.Models;
 using ServiceHealthReader.Services;
@@ -16,10 +18,10 @@ public class ServiceHealthController : Controller
 
     private readonly ILogger<ServiceHealthController> _logger;
     private readonly IConfiguration _configuration;
-    private readonly IDbService _db;
+    private readonly ApplicationDbContext _db;
     private readonly IServiceConfiguration _sc;
 
-    public ServiceHealthController(ILogger<ServiceHealthController> logger, IConfiguration configuration, IDbService db, IServiceConfiguration sc)
+    public ServiceHealthController(ILogger<ServiceHealthController> logger, IConfiguration configuration, ApplicationDbContext db, IServiceConfiguration sc)
     {
         _logger = logger;
         _configuration = configuration;
@@ -28,7 +30,7 @@ public class ServiceHealthController : Controller
     }
 
     [HttpGet("Issues")]
-    //[Route("Test")]
+    [HttpGet("Issues/{tenantId}")]
     //[ProducesResponseType(200)]
     public async Task<int> GetAndStoreIssues(string? tenantId)
     {
@@ -38,55 +40,67 @@ public class ServiceHealthController : Controller
         var client = new GraphClient(_configuration, _sc);
         var items = client.GetIssues();
 
-        Tenant t;
+        // even if we've fetched items for a tenant with certain guid, we might not have said tenant in the db
+        Tenant currentTenant;
 
-        if (!_db.Ctx.Tenants.Any(x => x.TenantId == _sc.TenantId))
+        if (!_db.Tenants.Any(x => x.TenantId == _sc.TenantId))
         {
-            t = _db.Ctx.Tenants.Add(new Tenant()
+            currentTenant = _db.Tenants.Add(new Tenant()
             {
                 TenantId = _sc.TenantId,
             }).Entity;
 
-            _db.Ctx.SaveChanges();
+            _db.SaveChanges();
         }
         else
         {
-            t = _db.Ctx.Tenants.Single(x => x.TenantId == _sc.TenantId);
+            currentTenant = _db.Tenants.Single(x => x.TenantId == _sc.TenantId);
         }
 
         var diag = await client.GetDiagnosticInformation();
 
         try
         {
-            var entity = _db.Ctx.ServerInfos.Add(diag.ServerInfo);
-            entity.Entity.Tenant = t;
+            var entity = _db.ServerInfos.Add(diag.ServerInfo);
+            entity.Entity.Tenant = currentTenant;
 
-            await _db.Ctx.SaveChangesAsync();
+            await _db.SaveChangesAsync();
         }
         catch (Exception)
         {
-
             throw;
         }
 
         foreach (var item in items)
         {
-            if (_db.Ctx.Issues.Count(x => x.Tenant.TenantId == _sc.TenantId && x.ServiceHealthIssue.Id == item.Id) > 0)
+            if (_db.Issues.Any(x => x.ServiceHealthIssue.Id == item.Id))
             {
-                // handle update somehow?
+                var issue = _db.Issues.Where(x => x.ServiceHealthIssue.Id == item.Id).Include(x => x.TenantIssues).First();
+
+                if (issue.TenantIssues.Where(x => x.TenantId == currentTenant.TenantId).Any())
+                {
+                    // we already have this issue for this tenant
+                    continue;
+                }
+                else
+                {
+                    issue.TenantIssues.Add(new TenantIssue() { Issue = issue, Tenant = currentTenant });
+                }
             }
-            else
+            else // we don't have this issue yet
             {
                 var issue = new Issue()
                 {
-                    ServiceHealthIssue = item,
-                    Tenant = t,
+                    ServiceHealthIssue = item
                 };
 
-                _db.Ctx.Issues.Add(issue);
+                var tenantIssue = new TenantIssue() { Issue = issue, Tenant = currentTenant };
+                issue.TenantIssues.Add(tenantIssue);
+
+                _db.Issues.Add(issue);
             }
 
-            _db.Ctx.SaveChanges();
+            await _db.SaveChangesAsync(); // suboptimal, but we'll take it for now
         }
 
         return items.Count();

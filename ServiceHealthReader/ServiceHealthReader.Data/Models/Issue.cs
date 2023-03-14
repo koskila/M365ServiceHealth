@@ -17,7 +17,7 @@ namespace ServiceHealthReader.Data.Models
         public int Id { get; set; }
         
         public Microsoft.Graph.ServiceHealthIssue ServiceHealthIssue { get; set; }
-        
-        public Tenant Tenant { get; set; }
+
+        public ICollection<TenantIssue> TenantIssues { get; set; } = new List<TenantIssue>();
     }
 }

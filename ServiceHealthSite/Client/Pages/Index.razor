@@ -1,9 +1,91 @@
 ﻿@page "/"
 
-<PageTitle>Index</PageTitle>
+@using BlazorApp.Shared
+@using Radzen;
+@using ServiceHealthReader.Data.Models;
+@using System.Text.Json;
+@using System.Text.Json.Serialization;
 
-<h1>Hello, world!</h1>
+@inject HttpClient Http
 
-Welcome to your new app.
+<PageTitle>M365 Issue History</PageTitle>
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+<RadzenText TextStyle="TextStyle.H1">M365 Issue History</RadzenText>
+
+@if (issues == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <RadzenDataGrid AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false" FilterMode="FilterMode.Advanced" AllowSorting="true"
+                PageSize="50" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true"
+                Data="@issues" TItem="Issue" ColumnWidth="300px" LogicalFilterOperator="LogicalFilterOperator.Or">
+        <Columns>
+            <RadzenDataGridColumn TItem="Issue" Property="ServiceHealthIssue.Id" Filterable="false" Title="ID" Frozen="true" Width="25px" TextAlign="TextAlign.Center">
+                <Template Context="data">
+                    <a href="/issue/@data.Id">@data.ServiceHealthIssue?.Id</a>
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn TItem="Issue" Property="ServiceHealthIssue.StartDateTime" Filterable="true" Title="Start Date" Frozen="true" Width="50px" TextAlign="TextAlign.Center">
+                <Template Context="data">
+                    <a href="/issue/@data.Id">@data.ServiceHealthIssue?.StartDateTime</a>
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn TItem="Issue" Property="ServiceHealthIssue.EndDateTime" Filterable="true" Title="End Date" Frozen="true" Width="50px" TextAlign="TextAlign.Center">
+                <Template Context="data">
+                    @data.ServiceHealthIssue?.EndDateTime
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn TItem="Issue" Property="Id" Filterable="true" Title="Status" Frozen="true" Width="50px" TextAlign="TextAlign.JustifyAll">
+                <Template Context="data">
+                    @data.ServiceHealthIssue?.Status
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn TItem="Issue" Property="ServiceHealthIssue" Filterable="true" Title="Issue" Frozen="true" TextAlign="TextAlign.Left">
+                <Template Context="data">
+                    @data.ServiceHealthIssue?.ImpactDescription
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn TItem="Issue" Property="Tenant" Title="Geographical impact" Frozen="true" Filterable="false" Sortable="false">
+                <Template Context="data">
+                    @{
+                        List<string> geos = new List<string>();
+                        foreach (var tenant in data.TenantIssues.Select(x => x.Tenant))
+                        {
+                            foreach (var dc in tenant.ServerInfo?.Select(x => x.DataCenter).Distinct())
+                            {
+                                geos.Add(dc);
+                            }
+                        }
+
+                        <BlazorApp.Client.Components.Geolist Geos=geos></BlazorApp.Client.Components.Geolist>
+                    }
+                </Template>
+            </RadzenDataGridColumn>
+        </Columns>
+    </RadzenDataGrid>
+}
+
+@code {
+    private Issue[] issues = new Issue[] { };
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var str = await Http.GetStringAsync("/api/Announcements");
+
+            // parse str JSON into issues[] using System.Text.JSON
+            issues = JsonSerializer.Deserialize<Issue[]>(str, new JsonSerializerOptions()
+                {
+                    ReferenceHandler = ReferenceHandler.Preserve,
+                });
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.ToString());
+            Console.Write(ex.StackTrace);
+        }
+    }
+}

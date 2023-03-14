@@ -1,0 +1,16 @@
+﻿@page "/tenant/{TenantId}"
+
+@inject DialogService dg
+@inject IJSRuntime jsRuntime
+@inject NavigationManager nvm
+
+<PageTitle>Tenant info</PageTitle>
+
+<h1>Tenant info</h1>
+
+@TenantId
+
+@code {
+    private string TenantId = "";
+
+}

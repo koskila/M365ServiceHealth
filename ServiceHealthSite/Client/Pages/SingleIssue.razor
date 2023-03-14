@@ -2,6 +2,9 @@
 
 @using ServiceHealthReader.Data.Models
 @using ServiceHealthReader.Data;
+@using System.Text.Json;
+@using System.Text.Json.Serialization;
+@using Microsoft.Graph;
 
 @inject HttpClient Http
 
@@ -9,83 +12,139 @@
 
     <PageTitle>Issue details</PageTitle>
 
-    <RadzenText TextStyle="TextStyle.H1">@title</RadzenText>
+    <RadzenText TextStyle="TextStyle.H2">@title</RadzenText>
 
-    <RadzenCard Class="rz-my-12 rz-mx-auto" Style="max-width: 420px">
+    <RadzenCard Class="rz-my-12 rz-mx-auto">
         <RadzenStack Orientation="Orientation.Vertical" JustifyContent="JustifyContent.Start" Gap="1rem" Class="rz-p-4">
             @if (showDetails)
             {
                 <RadzenText TextStyle="TextStyle.H3">
-                    <h2>Details</h2>
-                </RadzenText>
-                <RadzenText TextStyle="TextStyle.H6">
-                    <span>Start time:</span>
-                    @issue?.ServiceHealthIssue?.StartDateTime
+                    Details
                 </RadzenText>
 
-                <RadzenText>
-                    @issue?.ServiceHealthIssue?.ImpactDescription
-                </RadzenText>
-
-                <RadzenRow class="col-12">
-                    <RadzenText TextStyle="TextStyle.H3">History</RadzenText>
-                </RadzenRow>
-
-                <RadzenRow>
-                    @if (issue != null && issue.ServiceHealthIssue != null)
-                    {
-                        <RadzenRow class="col-12">
-                            @issue.ServiceHealthIssue.Classification?.ToString()
-                        </RadzenRow>
-                        <RadzenRow class="col-12">
-                            @if (issue.ServiceHealthIssue.Details != null)
+                @if (issue?.TenantIssues != null)
+                {
+                    <RadzenText TextStyle="TextStyle.Overline">
+                        Geos
+                    </RadzenText>
+                    <RadzenText TextStyle="TextStyle.Body1">
+                        @{
+                            var geos = new List<string>();
+                            foreach (var tenant in issue?.TenantIssues?.Select(x => x.Tenant))
                             {
-                                <ul>
-                                    @foreach (var d in issue.ServiceHealthIssue.Details)
-                                    {
-                                        <RadzenRow RowGap="0">@d.Name: @d.Value</RadzenRow>
-                                    }
-                                </ul>
+                                geos.Add(tenant.ServerInfo.OrderByDescending(x => x.Created).First()?.DataCenter);
                             }
-                        </RadzenRow>
-                        <RadzenRow class="col-12">
-                            @issue.ServiceHealthIssue.Feature
-                        </RadzenRow>
-                        <RadzenRow class="col-12">
-                            @issue.ServiceHealthIssue.FeatureGroup
+                            <BlazorApp.Client.Components.Geolist Geos=geos></BlazorApp.Client.Components.Geolist>
+                        }
+                    </RadzenText>
 
-                        </RadzenRow>
-                        <RadzenRow class="col-12">
-                            @issue.ServiceHealthIssue.ImpactDescription
+                    <RadzenText TextStyle="TextStyle.Overline">
+                        Rings
+                    </RadzenText>
+                    <RadzenText TextStyle="TextStyle.Body1">
+                        @*@issue?.TenantIssues?.ServerInfo?.First().Ring*@
+                    </RadzenText>
 
-                        </RadzenRow>
-                        <RadzenRow class="col-12">
 
-                            @if (issue.ServiceHealthIssue.Posts != null)
-                            {
-                                @foreach (var x in issue?.ServiceHealthIssue?.Posts)
+
+                    @*                    <RadzenText TextStyle="TextStyle.Overline">
+            Geos
+            </RadzenText>
+            <RadzenText TextStyle="TextStyle.Body1">
+            @issue?.Tenant?.ServerInfo?.First().
+            </RadzenText>*@
+
+                }
+
+                @if (issue != null && issue.ServiceHealthIssue != null)
+                {
+                    <RadzenText TextStyle="TextStyle.Overline">
+                        Start time
+                    </RadzenText>
+
+
+                    <RadzenText TextStyle="TextStyle.Body1">
+                        @issue?.ServiceHealthIssue?.StartDateTime
+                    </RadzenText>
+
+                    <RadzenText TextStyle="TextStyle.Overline">
+                        End time
+                    </RadzenText>
+                    <RadzenText TextStyle="TextStyle.Body1">
+                        @issue?.ServiceHealthIssue?.EndDateTime
+                    </RadzenText>
+
+                    <RadzenText TextStyle="TextStyle.Overline">
+                        Impact
+                    </RadzenText>
+                    <RadzenText TextStyle="TextStyle.Body1">
+                        @issue?.ServiceHealthIssue?.ImpactDescription
+                    </RadzenText>
+
+                    <RadzenRow>
+                        <RadzenText TextStyle="TextStyle.H3">History</RadzenText>
+                    </RadzenRow>
+
+                    <RadzenRow class="col-12">
+                        @issue.ServiceHealthIssue.Classification?.ToString()
+                    </RadzenRow>
+                    <RadzenRow class="col-12">
+                        @if (issue.ServiceHealthIssue.Details != null)
+                        {
+                            <ul>
+                                @foreach (var d in issue.ServiceHealthIssue.Details)
                                 {
-                                    <RadzenRow RowGap="0">
-                                        <RadzenColumn>@x.CreatedDateTime</RadzenColumn>
-                                        <RadzenColumn>@x.Description</RadzenColumn>
-                                    </RadzenRow>
+                                    <RadzenRow RowGap="0">@d.Name: @d.Value</RadzenRow>
                                 }
-                            }
-                        </RadzenRow>
-                        <RadzenRow>
-                            @if (issue.ServiceHealthIssue.Details != null)
+                            </ul>
+                        }
+
+                    </RadzenRow>
+                    <RadzenRow class="col-12">
+                        @issue.ServiceHealthIssue.Feature
+                    </RadzenRow>
+                    <RadzenRow class="col-12">
+                        @issue.ServiceHealthIssue.FeatureGroup
+
+                    </RadzenRow>
+                    <RadzenRow class="col-12">
+                        @issue.ServiceHealthIssue.Origin
+
+                    </RadzenRow>
+                    <RadzenRow class="col-12">
+
+                        <RadzenDataGrid Data="@issue.ServiceHealthIssue.Posts" TItem="ServiceHealthIssuePost">
+                            <Columns>
+                                <RadzenDataGridColumn TItem="ServiceHealthIssuePost" Property="CreatedDateTime" Title="Post date" />
+                                <RadzenDataGridColumn TItem="ServiceHealthIssuePost" Property="Description" Title="Post content" />
+                                <RadzenDataGridColumn TItem="ServiceHealthIssuePost" Property="PostType" Title="Post type" />
+                            </Columns>
+                        </RadzenDataGrid>
+
+                        @if (issue.ServiceHealthIssue.Posts != null)
+                        {
+                            @foreach (var x in issue?.ServiceHealthIssue?.Posts)
                             {
-                                @foreach (var x in issue.ServiceHealthIssue.Details)
-                                {
-                                    <RadzenRow>
-                                        <RadzenColumn> @x.Name </RadzenColumn>
-                                        <RadzenColumn> @x.Value </RadzenColumn>
-                                    </RadzenRow>
-                                }
+                                <RadzenRow RowGap="0">
+                                    <RadzenColumn>@x.CreatedDateTime</RadzenColumn>
+                                    <RadzenColumn>@x.Description</RadzenColumn>
+                                </RadzenRow>
                             }
-                        </RadzenRow>
-                    }
-                </RadzenRow>
+                        }
+                    </RadzenRow>
+                    <RadzenRow>
+                        @if (issue.ServiceHealthIssue.Details != null)
+                        {
+                            @foreach (var x in issue.ServiceHealthIssue.Details)
+                            {
+                                <RadzenRow>
+                                    <RadzenColumn> @x.Name </RadzenColumn>
+                                    <RadzenColumn> @x.Value </RadzenColumn>
+                                </RadzenRow>
+                            }
+                        }
+                    </RadzenRow>
+                }
             }
 
         </RadzenStack>
@@ -107,7 +166,14 @@
     {
         title = "Issue: " + Id;
 
-        issue = await Http.GetFromJsonAsync<Issue>($"/api/Issue/{Id}");
+        var str = await Http.GetStringAsync($"/api/Issue/{Id}");
+
+        issue = JsonSerializer.Deserialize<Issue>(str, new JsonSerializerOptions()
+            {
+                ReferenceHandler = ReferenceHandler.Preserve,
+                PropertyNameCaseInsensitive = true,
+                PropertyNamingPolicy = null
+            });
 
         if (issue == null) throw new ArgumentNullException("Can't have null here!");
 

@@ -1,0 +1,37 @@
+﻿@page "/newTenant"
+
+@inject DialogService dg
+@inject IJSRuntime jsRuntime
+@inject NavigationManager nvm
+
+<PageTitle>Register New Tenant</PageTitle>
+
+<h1>Register New Tenant</h1>
+
+<RadzenTextBox Label="Tenant ID" @bind-Value="@tenantId" Placeholder="Tenant ID" />
+<RadzenButton ButtonType="Radzen.ButtonType.Button" Click=AddTenant Text="Add Tenant" />
+
+@code {
+    private string tenantId = "";
+    private bool showDialog = false;
+
+    private string clientId = "ae386325-7a95-414b-ba02-d61603d983e5";
+    //private string redirectUri = "https://white-grass-0d81f3a03.2.azurestaticapps.net/";
+
+    private async Task AddTenant()
+    {
+        string redirectUri = $"{nvm.BaseUri}tenant/{tenantId}";
+        var url = $"https://login.microsoftonline.com/{tenantId}/oauth2/authorize?client_id={clientId}&response_type=code&redirect_uri={redirectUri}&response_mode=query&scope=openid%20offline_access%20https%3A%2F%2Fgraph.microsoft.com%2F.default";
+        await jsRuntime.InvokeAsync<object>("open", url, "_blank");
+        
+        //await dg.OpenAsync("Authorize tenant", ds =>
+        //    @<RadzenCard>
+        //        <iframe src="https://login.microsoftonline.com/@tenantId/oauth2/authorize?client_id=@clientId&response_type=code&redirect_uri=@redirectUri&response_mode=query&scope=openid%20offline_access%20https%3A%2F%2Fgraph.microsoft.com%2F.default" width="100%" height="100%" />
+        //    </RadzenCard>);
+    }
+
+    private async Task CloseDialog()
+    {
+        showDialog = false;
+    }
+}

@@ -29,6 +29,9 @@ namespace ServiceHealthReader.Data.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int? ServerInfoId { get; set; } = null;
 
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public DateTime Created { get; set; }
+
         /// <summary>
         /// Foreign Key for Tenant
         /// </summary>
