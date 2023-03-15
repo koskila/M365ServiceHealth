@@ -93,13 +93,21 @@ namespace ApiIsolated
             }
         }
 
+        [Function("AllGeos")]
+        public async Task<List<string>> AllGeos([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "AllGeos")] HttpRequestData req)
+        {
+            var geos = _applicationDbContext.ServerInfos.Select(x => x.DataCenter).ToList();
+            geos.Add("Global");
+            return geos;
+        }
+
         [Function("Trigger")]
         public async Task Trigger([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "Trigger/{id}")] HttpRequestData req, string id)
         {
             var baseUrl = Environment.GetEnvironmentVariable("BaseUrl");
 
             var httpClient = new HttpClient();
-            await httpClient.GetAsync(baseUrl + "Issues/" + id);
+            await httpClient.GetAsync(baseUrl + "ServiceHealth/Issues/" + id);
         }
     }
 }

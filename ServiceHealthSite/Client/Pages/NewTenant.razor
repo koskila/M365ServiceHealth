@@ -7,20 +7,21 @@
 
 <PageTitle>Register New Tenant</PageTitle>
 
-<h1>Register New Tenant</h1>
+<RadzenCard Style="max-width: 640px;">
+    <h1>Register New Tenant</h1>
+    <RadzenStack Orientation="Orientation.Vertical">
+        <RadzenRow>
+            <RadzenTextBox Label="Tenant ID" @bind-Value="@tenantId" Placeholder="Tenant ID" />
+            <RadzenButton ButtonStyle="Radzen.ButtonStyle.Info" Click=CheckIfTenantExists Text="Validate" />
+        </RadzenRow>
 
-<RadzenTextBox Label="Tenant ID" @bind-Value="@tenantId" Placeholder="Tenant ID" />
-<RadzenButton ButtonStyle="Radzen.ButtonStyle.Info" Click=CheckIfTenantExists Text="Check if tenant exists" />
-<RadzenButton ButtonStyle="Radzen.ButtonStyle.Primary" Click=AddTenant Text="Add Tenant" Disabled=!canAdd />
-@if (canAdd)
-{
-    <RadzenText>Will open a link to @url </RadzenText>
-}
+        <RadzenText TextStyle="TextStyle.Overline">Clicking "Authorize Tenant" will open a link to @url </RadzenText>
+        <RadzenButton ButtonStyle="Radzen.ButtonStyle.Primary" Click=AuthorizeTenant Text="Authorize Tenant" />
 
-@if (showTrigger)
-{
-    <RadzenButton Click=TriggerIndex></RadzenButton>
-}
+        <RadzenText TextStyle="TextStyle.Overline">This will only work if tenant has been authorized</RadzenText>
+        <RadzenButton ButtonStyle="Radzen.ButtonStyle.Primary" Click=TriggerIndex Text="Add Tenant" Disabled=!canAdd />
+    </RadzenStack>
+</RadzenCard>
 
 @code {
     private string tenantId = "";
@@ -35,12 +36,16 @@
 
     protected override Task OnInitializedAsync()
     {
+#if DEBUG
+    canAdd = true;
+#endif
+
         return base.OnInitializedAsync();
     }
 
     private async Task AddTenant()
     {
-        await jsRuntime.InvokeAsync<object>("open", url, "_blank");
+
     }
 
     protected async Task CheckIfTenantExists()
@@ -57,8 +62,8 @@
         }
 
         redirectUri = $"{nvm.BaseUri}tenant/";
-        url = $"https://login.microsoftonline.com/{tenantId}/oauth2/authorize?client_id={clientId}&response_type=code&redirect_uri={redirectUri}&response_mode=query&scope=openid%20offline_access%20https%3A%2F%2Fgraph.microsoft.com%2F.default";
-        
+        url = $"https://login.microsoftonline.com/{tenantId}/oauth2/authorize?client_id={clientId}&response_type=token&redirect_uri={redirectUri}&response_mode=query&scope=openid%20offline_access%20https%3A%2F%2Fgraph.microsoft.com%2F.default&state=12345&prompt=consent";
+
 
         this.StateHasChanged();
     }
@@ -66,5 +71,13 @@
     protected async Task TriggerIndex()
     {
         await Http.GetFromJsonAsync<bool>($"/api/Trigger/{tenantId}");
+    }
+
+    protected async Task AuthorizeTenant()
+    {
+        await jsRuntime.InvokeAsync<object>("open", url, "_blank");
+
+        showTrigger = true;
+        this.StateHasChanged();
     }
 }

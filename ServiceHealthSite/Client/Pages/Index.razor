@@ -12,6 +12,8 @@
 
 <RadzenText TextStyle="TextStyle.H1">M365 Issue History</RadzenText>
 
+<RadzenText TextStyle="TextStyle.Body1">There's no caching whatsoever, so this is much slower than it'd need to be.</RadzenText>
+
 @if (issues == null)
 {
     <p><em>Loading...</em></p>
@@ -65,7 +67,7 @@ else
                             }
                         }
 
-                        <BlazorApp.Client.Components.Geolist Geos=geos></BlazorApp.Client.Components.Geolist>
+                        <BlazorApp.Client.Components.Geolist Geos=geos AllGeos=AllGeos></BlazorApp.Client.Components.Geolist>
                     }
                 </Template>
             </RadzenDataGridColumn>
@@ -75,9 +77,20 @@ else
 
 @code {
     private IEnumerable<Issue> issues = new List<Issue>();
+    private List<string> AllGeos = new List<string>();
 
     protected override async Task OnInitializedAsync()
     {
+        try
+        {
+            AllGeos = (await Http.GetFromJsonAsync<List<string>>("/api/AllGeos"));
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.ToString());
+            Console.Write(ex.StackTrace);
+        }
+
         try
         {
             var str = await Http.GetStringAsync("/api/Announcements");

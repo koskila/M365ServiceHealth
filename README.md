@@ -31,3 +31,15 @@ let alone configured GitHub Actions workflows for a variety of different project
 
 Navigate to https://white-grass-0d81f3a03.2.azurestaticapps.net/. If GitHub Actions has run (it just broke due to runner updates, but it's probably up soon again), it should show the latest version of the app.
 
+## Learnings
+
+* Service Announcements API in Graph API is good.
+* Don't use Graph SDK, you'll just shoot yourself in the foot. Easier to use REST API like before.
+* Somehow, Microsoft has made AAD multi-tenant auth pretty easy.
+* The SWA experience on VS Code is flimsy. Better stick with Visual Studio
+* Error messages thrown by Microsoft tooling should always contain typos. Easier to search for exact solutions online.
+* Visual Studio Preview versions are incredibly solid, but you will still run into random issues occasionally
+* GitHub Actions rocks (but might have super random 3-minute unannounced service outages)
+* .NET 7 rocks
+* Unlike stated by certain Microsoft sources, x-diagnostics header is useless for determining the data center location. It's just the nearest data center.
+
