@@ -1,4 +1,5 @@
 ﻿@page "/tenant/{TenantId}"
+@page "/tenant/"
 
 @inject DialogService dg
 @inject IJSRuntime jsRuntime
@@ -8,8 +9,18 @@
 
 <h1>Tenant info</h1>
 
-<p>Tenant registered! </p> @TenantId
+<p>Tenant registered! </p>
+
+<p>You can now close this tab and hit the "Trigger index" button on the previous tab.</p>
+
 
 @code {
-    private string TenantId = "";
+    [Parameter]
+    public string TenantId { get; set; } = "";
+
+    [Parameter]
+    [SupplyParameterFromQuery(Name = "code")]
+    public string code { get; set; } =  "";
+
+
 }

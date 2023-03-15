@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using ServiceHealthReader.Data;
 using ServiceHealthReader.Data.Models;
+using System.Net.Http;
 
 namespace ApiIsolated
 {
@@ -77,6 +78,28 @@ namespace ApiIsolated
 
             var json = System.Text.Json.JsonSerializer.Serialize(issue, options);
             return json;
+        }
+
+        [Function("TenantExists")]
+        public async Task<string> TenantExists([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "TenantExists/{id}")] HttpRequestData req, string id)
+        {
+            if (_applicationDbContext.Tenants.Any(x => x.TenantId == id))
+            {
+                return System.Text.Json.JsonSerializer.Serialize("true");
+            }
+            else
+            {
+                return System.Text.Json.JsonSerializer.Serialize("false");
+            }
+        }
+
+        [Function("Trigger")]
+        public async Task Trigger([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "Trigger/{id}")] HttpRequestData req, string id)
+        {
+            var baseUrl = Environment.GetEnvironmentVariable("BaseUrl");
+
+            var httpClient = new HttpClient();
+            await httpClient.GetAsync(baseUrl + "Issues/" + id);
         }
     }
 }
