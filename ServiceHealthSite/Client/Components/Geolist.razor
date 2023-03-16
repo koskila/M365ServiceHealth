@@ -24,15 +24,8 @@
 
 @code {
     [Parameter]
-    public List<string> Geos { get; set; } = null;
+    public List<string> Geos { get; set; } = new List<string>();
     
     [Parameter]
-    public List<string> AllGeos { get; set; } = new List<string>()
-    {
-        "West Europe",
-        "North Europe",
-        "East US",
-        "West US",
-        "Global"
-    };
+    public List<string> AllGeos { get; set; } = new List<string>();
 }

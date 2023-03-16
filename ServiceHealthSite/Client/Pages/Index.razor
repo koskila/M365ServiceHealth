@@ -81,15 +81,23 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        try
-        {
-            AllGeos = (await Http.GetFromJsonAsync<List<string>>("/api/AllGeos"));
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex.ToString());
-            Console.Write(ex.StackTrace);
-        }
+        // Revert this stuff - the headers that you get from Graph API are always from the nearest DC, to get the data location you need to
+        // call the damn Exchange APIs, which I'm NOT going to do, so the Geo data in db is actually all just West Europe.
+        // Let's mock this instead.
+        AllGeos.Add("West Europe");
+        AllGeos.Add("East US");
+        AllGeos.Add("West US");
+        AllGeos.Add("North Europe");
+        AllGeos.Add("Global");
+        //try
+        //{
+        //    AllGeos = (await Http.GetFromJsonAsync<List<string>>("/api/AllGeos"));
+        //}
+        //catch (Exception ex)
+        //{
+        //    Console.WriteLine(ex.ToString());
+        //    Console.Write(ex.StackTrace);
+        //}
 
         try
         {
